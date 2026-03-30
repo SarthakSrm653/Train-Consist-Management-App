@@ -1,17 +1,8 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
-/**
- * ============================================================
- * MAIN CLASS - UseCase7TrainConsistMgmnt
- * ============================================================
- * Use Case 7: Sort Bogies by Capacity (Comparator)
- * * Description:
- * This class sorts passenger bogies based on seating 
- * capacity using a custom Comparator.
- */
 public class Train_management_App {
 
-    // Inner Bogie class to model passenger bogies
     static class Bogie {
         String name;
         int capacity;
@@ -28,40 +19,38 @@ public class Train_management_App {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         List<Bogie> bogies = new ArrayList<>();
 
+        // Adding sample data as per UC7 requirements
+        bogies.add(new Bogie("Sleeper", 72));
+        bogies.add(new Bogie("AC Chair", 56));
+        bogies.add(new Bogie("First Class", 24));
+        bogies.add(new Bogie("General", 90));
+
         System.out.println("==============================================");
-        System.out.println(" UC7 - Sort Bogies by Capacity (Comparator) ");
+        System.out.println(" UC8 - Filter Bogies (Capacity > 60) ");
         System.out.println("==============================================\n");
 
-        // Taking User Input
-        System.out.print("Enter the number of bogies to add: ");
-        int count = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        System.out.println("Original List:");
+        bogies.forEach(System.out::println);
 
-        for (int i = 0; i < count; i++) {
-            System.out.print("Enter Bogie Name (e.g., Sleeper, AC Chair): ");
-            String name = scanner.nextLine();
-            System.out.print("Enter Seating Capacity: ");
-            int cap = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-            bogies.add(new Bogie(name, cap));
+        // --- STREAM API LOGIC ---
+        // 1. Convert list to stream
+        // 2. Filter bogies where capacity > 60
+        // 3. Collect the results into a new list
+        List<Bogie> highCapacityBogies = bogies.stream()
+                .filter(b -> b.capacity > 60)
+                .collect(Collectors.toList());
+
+        System.out.println("\nFiltered Bogies (Capacity > 60):");
+        if (highCapacityBogies.isEmpty()) {
+            System.out.println("No bogies match the criteria.");
+        } else {
+            highCapacityBogies.forEach(System.out::println);
         }
 
-        // Display Unsorted Data
-        System.out.println("\nBefore Sorting:");
-        bogies.forEach(System.out::println);
-
-        // Sorting using Comparator (comparingInt for efficiency)
-        // This arranges them from lowest capacity to highest
-        bogies.sort(Comparator.comparingInt(b -> b.capacity));
-
-        // Display Sorted Result
-        System.out.println("\nAfter Sorting by Capacity:");
-        bogies.forEach(System.out::println);
-
-        System.out.println("\nUC7 sorting completed...");
-        scanner.close();
+        // Verify Original Integrity
+        System.out.println("\nVerification: Original list size remains " + bogies.size());
+        System.out.println("UC8 filtering completed...");
     }
 }
