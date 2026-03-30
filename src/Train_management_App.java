@@ -1,6 +1,15 @@
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * ============================================================
+ * MAIN CLASS - UseCase9TrainConsistMgmnt
+ * ============================================================
+ * Use Case 9: Group Bogies by Type
+ * * Description:
+ * This class categorizes bogies into a Map structure
+ * using Collectors.groupingBy().
+ */
 public class Train_management_App {
 
     static class Bogie {
@@ -12,45 +21,43 @@ public class Train_management_App {
             this.capacity = capacity;
         }
 
+        public String getName() {
+            return name;
+        }
+
         @Override
         public String toString() {
-            return name + " -> " + capacity;
+            return "[Name: " + name + ", Cap: " + capacity + "]";
         }
     }
 
     public static void main(String[] args) {
+        // 1. Create a list of bogies (including duplicates to test grouping)
         List<Bogie> bogies = new ArrayList<>();
-
-        // Adding sample data as per UC7 requirements
+        bogies.add(new Bogie("Sleeper", 72));
         bogies.add(new Bogie("Sleeper", 72));
         bogies.add(new Bogie("AC Chair", 56));
         bogies.add(new Bogie("First Class", 24));
-        bogies.add(new Bogie("General", 90));
+        bogies.add(new Bogie("AC Chair", 56));
 
         System.out.println("==============================================");
-        System.out.println(" UC8 - Filter Bogies (Capacity > 60) ");
+        System.out.println(" UC9 - Group Bogies by Type (Collectors) ");
         System.out.println("==============================================\n");
 
-        System.out.println("Original List:");
+        System.out.println("Original Unordered List:");
         bogies.forEach(System.out::println);
 
-        // --- STREAM API LOGIC ---
-        // 1. Convert list to stream
-        // 2. Filter bogies where capacity > 60
-        // 3. Collect the results into a new list
-        List<Bogie> highCapacityBogies = bogies.stream()
-                .filter(b -> b.capacity > 60)
-                .collect(Collectors.toList());
+        // 2. Apply groupingBy logic
+        // This creates a Map<String, List<Bogie>>
+        Map<String, List<Bogie>> groupedBogies = bogies.stream()
+                .collect(Collectors.groupingBy(Bogie::getName));
 
-        System.out.println("\nFiltered Bogies (Capacity > 60):");
-        if (highCapacityBogies.isEmpty()) {
-            System.out.println("No bogies match the criteria.");
-        } else {
-            highCapacityBogies.forEach(System.out::println);
-        }
+        // 3. Display the structured results
+        System.out.println("\nGrouped Bogie Structure:");
+        groupedBogies.forEach((type, list) -> {
+            System.out.println(type + " -> " + list);
+        });
 
-        // Verify Original Integrity
-        System.out.println("\nVerification: Original list size remains " + bogies.size());
-        System.out.println("UC8 filtering completed...");
+        System.out.println("\nUC9 grouping completed successfully.");
     }
 }
