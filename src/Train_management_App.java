@@ -1,68 +1,76 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * ============================================================
  * MAIN CLASS - Train_management_App
  * ============================================================
- * Use Case 12: Safety Compliance Check for Goods Bogies
- * Description: Uses allMatch() to ensure Cylindrical bogies
- * only carry Petroleum.
+ * Use Case 13: Performance Comparison (Loops vs Streams)
+ * Description: Benchmarks the execution time of filtering
+ * logic using System.nanoTime().
  */
 public class Train_management_App {
 
-    static class GoodsBogie {
-        String type;  // e.g., "Cylindrical", "Open", "Box"
-        String cargo; // e.g., "Petroleum", "Coal", "Grain"
+    static class Bogie {
+        String name;
+        int capacity;
 
-        GoodsBogie(String type, String cargo) {
-            this.type = type;
-            this.cargo = cargo;
+        Bogie(String name, int capacity) {
+            this.name = name;
+            this.capacity = capacity;
         }
 
-        @Override
-        public String toString() {
-            return String.format("[%s Bogie carrying %s]", type, cargo);
-        }
+        public int getCapacity() { return capacity; }
     }
 
     public static void main(String[] args) {
-        List<GoodsBogie> goodsConsist = new ArrayList<>();
-
-        // Test Case: Adding a mix of bogies
-        goodsConsist.add(new GoodsBogie("Open", "Coal"));
-        goodsConsist.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        goodsConsist.add(new GoodsBogie("Box", "Grain"));
-
-        // Uncomment the line below to test an UNSAFE train
-        // goodsConsist.add(new GoodsBogie("Cylindrical", "Coal"));
+        // 1. Prepare a large dataset to make the time difference visible
+        List<Bogie> bogies = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < 10000; i++) {
+            bogies.add(new Bogie("Bogie-" + i, random.nextInt(100)));
+        }
 
         System.out.println("==============================================");
-        System.out.println(" UC12 - Safety Compliance Check (allMatch) ");
+        System.out.println(" UC13 - Performance Comparison (Loops vs Streams) ");
+        System.out.println(" Benchmark Dataset Size: " + bogies.size() + " Bogies");
         System.out.println("==============================================\n");
 
-        System.out.println("Current Goods Consist:");
-        goodsConsist.forEach(System.out::println);
-
-        // --- SAFETY VALIDATION LOGIC ---
-        // Rule: IF type is Cylindrical, cargo MUST be Petroleum.
-        // Logic: (Not Cylindrical) OR (Is Cylindrical AND cargo is Petroleum)
-        boolean isSafe = goodsConsist.stream().allMatch(bogie -> {
-            if (bogie.type.equalsIgnoreCase("Cylindrical")) {
-                return bogie.cargo.equalsIgnoreCase("Petroleum");
+        // --- APPROACH 1: TRADITIONAL FOR-LOOP ---
+        long startLoop = System.nanoTime();
+        List<Bogie> filteredByLoop = new ArrayList<>();
+        for (Bogie b : bogies) {
+            if (b.getCapacity() > 60) {
+                filteredByLoop.add(b);
             }
-            return true; // Non-cylindrical bogies pass by default here
-        });
-
-        System.out.println("\n----------------------------------------------");
-        if (isSafe) {
-            System.out.println("STATUS: ✔ SAFE TO DEPART");
-            System.out.println("All safety protocols for cylindrical bogies met.");
-        } else {
-            System.out.println("STATUS: ❌ UNSAFE - STOP TRAIN");
-            System.out.println("Violation: Cylindrical bogie detected with illegal cargo!");
         }
-        System.out.println("----------------------------------------------");
+        long endLoop = System.nanoTime();
+        long loopDuration = endLoop - startLoop;
 
-        System.out.println("\nUC12 safety check completed.");
+        // --- APPROACH 2: JAVA STREAMS ---
+        long startStream = System.nanoTime();
+        List<Bogie> filteredByStream = bogies.stream()
+                .filter(b -> b.getCapacity() > 60)
+                .collect(Collectors.toList());
+        long endStream = System.nanoTime();
+        long streamDuration = endStream - startStream;
+
+        // 2. Display Results
+        System.out.println("Results for Capacity > 60:");
+        System.out.println("Loop Filtered Count  : " + filteredByLoop.size());
+        System.out.println("Stream Filtered Count: " + filteredByStream.size());
+
+        System.out.println("\n--- Performance Benchmarking ---");
+        System.out.println("Loop Execution Time  : " + loopDuration + " ns");
+        System.out.println("Stream Execution Time: " + streamDuration + " ns");
+
+        // 3. Simple Analysis
+        if (loopDuration < streamDuration) {
+            System.out.println("\nVerdict: Traditional Loop was faster by " + (streamDuration - loopDuration) + " ns");
+        } else {
+            System.out.println("\nVerdict: Stream was faster by " + (loopDuration - streamDuration) + " ns");
+        }
+
+        System.out.println("\nUC13 benchmarking completed.");
     }
 }
